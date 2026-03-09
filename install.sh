@@ -67,14 +67,32 @@ else
     warn "No fallback colors found at $FALLBACK_DIR — run matugen after install."
 fi
 
-# ── Step 4: Stow dotfiles ─────────────────────────────────────────────────────
+# ── Step 4: Create integration symlinks ───────────────────────────────────────
+header "Creating theme integration symlinks..."
+
+# btop: color_theme = "current" looks for ~/.config/btop/themes/current.theme
+mkdir -p "$HOME/.config/btop/themes"
+ln -sf "$HOME/.config/theme/current/btop.theme" "$HOME/.config/btop/themes/current.theme"
+success "btop theme symlink: ~/.config/btop/themes/current.theme -> ~/.config/theme/current/btop.theme"
+
+# cava: theme = 'matugen' looks for ~/.config/cava/themes/matugen
+mkdir -p "$HOME/.config/cava/themes"
+ln -sf "$HOME/.config/theme/current/cava_theme" "$HOME/.config/cava/themes/matugen"
+success "cava theme symlink: ~/.config/cava/themes/matugen -> ~/.config/theme/current/cava_theme"
+
+# walker: style.css is read from ~/.config/walker/style.css
+mkdir -p "$HOME/.config/walker"
+ln -sf "$HOME/.config/theme/current/walker.css" "$HOME/.config/walker/style.css"
+success "walker style symlink: ~/.config/walker/style.css -> ~/.config/theme/current/walker.css"
+
+# ── Step 5: Stow dotfiles ─────────────────────────────────────────────────────
 header "Stowing dotfiles..."
 
 # Stow links everything in ~/dotfiles/ into $HOME
 stow --dir="$DOTFILES_DIR" --target="$HOME" --restow .
 success "Stow complete — all configs symlinked to \$HOME"
 
-# ── Step 5: Matugen (optional) ────────────────────────────────────────────────
+# ── Step 6: Matugen (optional) ────────────────────────────────────────────────
 header "Matugen dynamic theming (optional)"
 
 echo ""
