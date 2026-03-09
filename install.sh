@@ -80,15 +80,34 @@ mkdir -p "$HOME/.config/cava/themes"
 ln -sf "$HOME/.config/theme/current/cava_theme" "$HOME/.config/cava/themes/matugen"
 success "cava theme symlink: ~/.config/cava/themes/matugen -> ~/.config/theme/current/cava_theme"
 
-# walker: style.css is read from ~/.config/walker/style.css
-mkdir -p "$HOME/.config/walker"
-ln -sf "$HOME/.config/theme/current/walker.css" "$HOME/.config/walker/style.css"
-success "walker style symlink: ~/.config/walker/style.css -> ~/.config/theme/current/walker.css"
 
 # ── Step 5: Stow dotfiles ─────────────────────────────────────────────────────
 header "Stowing dotfiles..."
 
-# Stow links everything in ~/dotfiles/ into $HOME
+# Back up any existing real files that would conflict with stow
+BACKUP_DIR="$HOME/.config-backup-$(date +%Y%m%d-%H%M%S)"
+CONFLICTS=()
+
+while IFS= read -r -d '' f; do
+    rel="${f#$DOTFILES_DIR/}"
+    target="$HOME/$rel"
+    if [ -e "$target" ] && [ ! -L "$target" ]; then
+        CONFLICTS+=("$target")
+    fi
+done < <(find "$DOTFILES_DIR" -not -path "$DOTFILES_DIR/.git/*" -not -name '.git' -type f -print0)
+
+if [ ${#CONFLICTS[@]} -gt 0 ]; then
+    mkdir -p "$BACKUP_DIR"
+    warn "Backing up ${#CONFLICTS[@]} existing config file(s) to $BACKUP_DIR"
+    for f in "${CONFLICTS[@]}"; do
+        rel="${f#$HOME/}"
+        mkdir -p "$BACKUP_DIR/$(dirname "$rel")"
+        mv "$f" "$BACKUP_DIR/$rel"
+        info "  Backed up: $f"
+    done
+    success "Backup complete"
+fi
+
 stow --dir="$DOTFILES_DIR" --target="$HOME" --restow .
 success "Stow complete — all configs symlinked to \$HOME"
 

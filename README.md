@@ -61,8 +61,11 @@ The installer will:
 1. Check for missing dependencies (warns, does not exit)
 2. Create `~/.config/theme/current/` and `~/.config/theme/themes/snow_black/`
 3. Copy fallback colors so the rice works immediately
-4. Symlink everything into `$HOME` via GNU Stow
-5. Optionally run `matugen` to generate colors from your wallpaper
+4. Create integration symlinks for btop and cava themes
+5. Back up any existing config files that would conflict, then symlink everything via GNU Stow
+6. Optionally run `matugen` to generate colors from your wallpaper
+
+> **Existing configs** are automatically backed up to `~/.config-backup-<timestamp>/` before stowing.
 
 ---
 
